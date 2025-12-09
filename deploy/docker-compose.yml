@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Banco de Dados
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=validacao_documentos
+    networks:
+      - app-network
+
+  # Backend API
+  backend:
+    build: 
+      context: ../validacao-documentos-backend
+      dockerfile: Dockerfile
+    volumes:
+      - ../validacao-documentos-backend:/app
+      - uploads_data:/app/uploads
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/validacao_documentos
+      - OCR_ENGINE=tesseract
+      - CORS_ORIGINS=*
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ../validacao-documentos-frontend
+      dockerfile: Dockerfile
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Nginx Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  uploads_data:
