@@ -29,4 +29,8 @@ def get_db():
 
 def init_db():
     """Inicializar banco de dados criando todas as tabelas"""
+    # Importar modelos aqui para garantir que sejam registrados no Base.metadata
+    from app.models.document import Document
+    from app.models.course import Course
+    
     Base.metadata.create_all(bind=engine)

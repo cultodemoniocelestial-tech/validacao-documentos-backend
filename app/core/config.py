@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -18,10 +18,10 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
     
     # OCR
-    OCR_ENGINE: str = "paddleocr"  # paddleocr ou tesseract
+    OCR_ENGINE: str = "tesseract"  # tesseract (padrão)
     
-    # CORS
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:3001"]
+    # CORS - Permitir tudo para facilitar deploy
+    CORS_ORIGINS: List[str] = ["*"]
     
     class Config:
         env_file = ".env"

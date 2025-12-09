@@ -7,12 +7,6 @@ from PIL import Image
 from pdf2image import convert_from_path
 import pytesseract
 
-try:
-    from paddleocr import PaddleOCR
-    PADDLE_AVAILABLE = True
-except ImportError:
-    PADDLE_AVAILABLE = False
-
 from app.core.config import settings
 
 
@@ -20,27 +14,15 @@ class OCRService:
     """Serviço para extração de texto via OCR"""
     
     def __init__(self):
-        self.ocr_engine = settings.OCR_ENGINE
-        if self.ocr_engine == "paddleocr" and PADDLE_AVAILABLE:
-            self.paddle_ocr = PaddleOCR(use_angle_cls=True, lang='pt', show_log=False)
-        else:
-            self.ocr_engine = "tesseract"
+        self.ocr_engine = "tesseract"
     
     def extract_text_from_image(self, image_path: str) -> str:
         """Extrair texto de uma imagem"""
         try:
-            if self.ocr_engine == "paddleocr" and PADDLE_AVAILABLE:
-                result = self.paddle_ocr.ocr(image_path, cls=True)
-                text_lines = []
-                if result and result[0]:
-                    for line in result[0]:
-                        text_lines.append(line[1][0])
-                return "\n".join(text_lines)
-            else:
-                # Usar Tesseract
-                image = Image.open(image_path)
-                text = pytesseract.image_to_string(image, lang='por')
-                return text
+            # Usar Tesseract
+            image = Image.open(image_path)
+            text = pytesseract.image_to_string(image, lang='por')
+            return text
         except Exception as e:
             print(f"Erro ao extrair texto da imagem: {e}")
             return ""
